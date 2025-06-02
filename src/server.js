@@ -52,7 +52,7 @@ async function startServer() {
 
     // Start HTTP server
     const port = config.port;
-    app.listen(port, () => {
+    app.listen(port, '0.0.0.0', () => {
         const url = `http://localhost:${port}`;
         logger.info(`Addon server listening on ${url}`);
         logger.info(`Configure/install via ${url}/configure`);
