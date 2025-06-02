@@ -60,7 +60,7 @@ async function streamHandler({ type, id }) {
 
         // Add standard ratings (IMDb, TMDb, Metacritic)
         ratings
-            .filter(r => ['IMDb', 'TMDb', 'MC', 'MC Users','RT' ,'RT Users'].includes(r.source))
+            .filter(r => ['IMDb', 'TMDb', 'MC', 'MC Users', 'RT', 'RT Users'].includes(r.source))
             .sort((a, b) => { // Sort for consistent order
                 const order = ['IMDb', 'TMDb', 'MC', 'MC Users', 'RT', 'RT Users'];
                 return order.indexOf(a.source) - order.indexOf(b.source);
@@ -88,6 +88,7 @@ async function streamHandler({ type, id }) {
         const stream = {
             name: "📊 Ratings Aggregator ", // Main title for the stream item
             description: formattedLines.join('\n'),
+            url: `${config.sources.imdbBaseUrl}/title/${id.split(':')[0]}/`, // FIX for WebOS - Dummy URL, won't be used
             // Use IMDb URL as a fallback/reference if no specific rating URL is best
             externalUrl: `${config.sources.imdbBaseUrl}/title/${id.split(':')[0]}/`,
             behaviorHints: {
