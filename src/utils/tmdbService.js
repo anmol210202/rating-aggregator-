@@ -35,7 +35,7 @@ async function getTmdbData(imdbId, type) {
                 `TMDB Data: IMDb=${baseImdb}, Type=${type} → ID=${tmdbId}, Name="${name}", Date="${date}"`
             );
 
-            return { tmdbId, name , date};
+            return { tmdbId, name, date };
         }
 
         logger.warn(`No TMDB results for IMDb=${baseImdb} (type=${type}).`);
@@ -55,4 +55,78 @@ async function getTmdbData(imdbId, type) {
     }
 }
 
-module.exports = { getTmdbData };
+/**
+ * Get youtube trailer id from TMDB api using IMDB id
+ * @param {*} imdbId 
+ * @returns 
+ */
+
+async function getTmdbTrailer(type, imdbId) {
+    const baseImdb = imdbId.split(':')[0];
+    try {
+        // Get the TMDb ID from IMDb ID
+        const tmdbResp = await axios.get(`${config.tmdb.apiUrl}/find/${baseImdb}`, {
+            params: {
+                api_key: config.tmdb.apiKey,
+                external_source: 'imdb_id',
+                timeout: 5000
+            }
+        });
+
+        const tmdbId = type === 'series' ? tmdbResp.data.tv_results?.[0]?.id : tmdbResp.data.movie_results?.[0]?.id;
+        logger.info(`Trying to fetch YouTube trailer for TMDB id ${tmdbId}`);
+        if (!tmdbId) return null;
+
+        const endpoint = type === 'series' ? 'tv' : 'movie';
+        // Get videos for the movie
+        const videosResp = await axios.get(`${config.tmdb.apiUrl}/${endpoint}/${tmdbId}/videos`, {
+            params: { api_key: config.tmdb.apiKey }, timeout: 5000
+        });
+
+        const videos = videosResp.data.results
+            .filter(function (video) {
+                return video.site === "YouTube" && video.official &&
+                    (video.type === "Trailer" || video.type === "Teaser");
+            });
+
+        // Sort with priority:
+        // 1. Type "Trailer" over "Teaser"
+        // 2. Name contains "trailer" (case-insensitive)
+        // 3. Larger size first
+
+        videos.sort(function (a, b) {
+            function score(v) {
+                return [
+                    v.type === "Trailer" ? 1 : 0,
+                    /trailer/i.test(v.name) ? 1 : 0,
+                    v.size || 0
+                ];
+            }
+
+            const sa = score(a);
+            const sb = score(b);
+
+            for (let i = 0; i < sa.length; i++) {
+                if (sb[i] !== sa[i]) {
+                    return sb[i] - sa[i]; // Descending
+                }
+            }
+
+            return 0;
+        });
+
+        const selected = videos[0];
+
+        if (selected) {
+            logger.info("Fetched YouTube trailer with key " + selected.key);
+            return selected.key;
+        }
+
+        return null;
+    } catch (err) {
+        logger.error('TMDb trailer fetch error:', err.message);
+        return null;
+    }
+}
+
+module.exports = { getTmdbData, getTmdbTrailer };

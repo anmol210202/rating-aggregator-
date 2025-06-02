@@ -30,7 +30,7 @@ const config = {
     userAgent: process.env.USER_AGENT || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36', // Update UA periodically
     addon: {
         id: 'community.ratings.aggregator',
-        version: '1.5.1', // Incremented version
+        version: '1.6.0', // Incremented version
         name: '🎯 Ratings Aggregator',
         description: 'Aggregated ratings from IMDb, TMDb, Metacritic, Common Sense, CringeMDB and more.',
         catalogs: [],
