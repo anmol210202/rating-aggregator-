@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.6.3](https://github.com/anmol210202/rating-aggregator-/compare/v1.6.2...v1.6.3) (2025-07-10)
+
+
+### Bug Fixes
+
+* correct typo in rating output ([85a6f25](https://github.com/anmol210202/rating-aggregator-/commit/85a6f25e2020307a2eaa37b419f45593b2510564))
+* fixing sync ([a7b7906](https://github.com/anmol210202/rating-aggregator-/commit/a7b7906439f153de358182677c328d2175b5b63c))
+* sync version ([5d1a50e](https://github.com/anmol210202/rating-aggregator-/commit/5d1a50e874dba68f80b0ceee2e331a4135e04de7))
+* sync version ([603075b](https://github.com/anmol210202/rating-aggregator-/commit/603075ba378c257b1bc37c14b66611bcffd388c6))
+* trying version sync ([356d243](https://github.com/anmol210202/rating-aggregator-/commit/356d243b2d9d52774e8d8676070416e575c2333a))
+
 ## [1.6.2](https://github.com/anmol210202/rating-aggregator-/compare/v1.6.1...v1.6.2) (2025-07-10)
 
 
