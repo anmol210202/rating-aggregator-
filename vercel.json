@@ -1,35 +1,32 @@
 {
   "builds": [
-    { 
+    {
       "src": "api/index.js",
       "use": "@vercel/node",
-      "config": { 
-        "includeFiles": [
-          "src/**",
-          ".env"
-        ]
+      "config": {
+        "includeFiles": ["src/**", ".env"]
       }
     },
-    { 
-      "src": "frontend/**",
-      "use": "@vercel/static",
-      "config": {
-        "outputDirectory": "frontend/dist"
-      }
+    {
+      "src": "frontend/dist/**",
+      "use": "@vercel/static"
     }
   ],
   "rewrites": [
     { "source": "/manifest.json", "destination": "/api" },
-    { "source": "/configure/assets/(.*)", "destination": "/frontend/dist/assets/$1" },
-    { "source": "/configure/(.*)", "destination": "/frontend/dist/index.html" },
-    { "source": "/configure", "destination": "/frontend/dist/index.html" },
+    { "source": "/configure/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/configure/(.*)", "destination": "/index.html" },
+    { "source": "/configure", "destination": "/index.html" },
     { "source": "/(.*)", "destination": "/api" }
   ],
   "headers": [
     {
       "source": "/configure/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
   ]
