@@ -5,18 +5,14 @@ import path from 'path'
 import { version } from './package.json';
 
 export default defineConfig(({ mode }) => {
-  // Load env variables
   const env = {
     ...loadEnv(mode, process.cwd(), ""),
-    };
-    const processEnvValues = {
-    "process.env": Object.entries(env).reduce((prev, [key, val]) => {
-      console.log(key, val);
-      return {
-        ...prev,
-        [key]: val,
-      };
-    }, {
+  };
+  const processEnvValues = {
+    "process.env": Object.entries(env).reduce((prev, [key, val]) => ({
+      ...prev,
+      [key]: val,
+    }), {
       VERSION: version,
     }),
   };
