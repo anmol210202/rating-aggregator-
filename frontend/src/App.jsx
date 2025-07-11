@@ -1,191 +1,151 @@
-// frontend/src/App.jsx
+// frontend/src/App.jsx (merged + countdown + GTM)
 import { motion } from 'framer-motion';
-import { FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
-import { toast } from 'react-toastify';
 import { SiStremio } from "react-icons/si";
-import RatingCard from './components/RatingCard';
-import { addonConfig } from './config';
-import showCase from './assets/showcase.png';
-import { AddonManagerCard } from './components/AddonManagerCard';
-import { useEffect } from 'react';
-
-// Removed KoFiDialog import as it was commented out
-// import { KoFiDialog } from 'react-kofi';
-// import 'react-kofi/dist/styles.css';
-
-// +++ ADD THESE IMPORTS +++
-import { initGTM } from './utils/gtm';
+import { useEffect, useState, useRef } from 'react';
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-// ++++++++++++++++++++++++++
+import Digit from './components/Digit';
+
+const calculateTimeLeft = (expirationDate) => {
+  const diff = +new Date(expirationDate) - +new Date();
+  return diff > 0 ? {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((diff / 1000 / 60) % 60),
+    seconds: Math.floor((diff / 1000) % 60),
+  } : { days: 0, hours: 0, minutes: 0, seconds: 0 };
+};
 
 function App() {
-  // Use a relative path for Vercel deployment, or configure backendUrl dynamically
-  // Assuming the frontend and backend are served from the same Vercel deployment domain
   const manifestUrl = `/manifest.json`;
-  // Or adjust addonConfig.backendUrl if needed: const manifestUrl = `${addonConfig.backendUrl}/manifest.json`;
+  const expirationDateTime = new Date('2025-07-23T00:00:00Z');
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(expirationDateTime));
+  const timerRef = useRef(null);
 
   useEffect(() => {
-    // Initialize Google Tag Manager
-    initGTM();
-    // push initial pageview event
-    window.dataLayer.push({ event: 'pageview', page: window.location.pathname });
+    timerRef.current = setInterval(() => setTimeLeft(calculateTimeLeft(expirationDateTime)), 1000);
+    return () => clearInterval(timerRef.current);
   }, []);
 
-  const handleCopy = () => {
-    // Construct full URL for copying if needed, using window.location.origin
-    const absoluteManifestUrl = new URL(manifestUrl, window.location.origin).href;
-    navigator.clipboard.writeText(absoluteManifestUrl)
-      .then(() => toast.success('Manifest URL copied!'))
-      .catch(() => toast.error('Failed to copy URL'));
+  const handleSwitchNow = () => {
+    window.location.href = 'https://rating-aggregator.elfhosted.com/configure/';
   };
 
-  const handleStremioWeb = () => {
-    const absoluteManifestUrl = new URL(manifestUrl, window.location.origin).href;
-    window.open(`https://web.stremio.com/#/addons?addon=${encodeURIComponent(absoluteManifestUrl)}`, '_blank');
-  };
-
-  const handleStremioApp = () => {
-    const absoluteManifestUrl = new URL(manifestUrl, window.location.origin).href;
-    // Ensure the manifest URL uses https for the deeplink if deployed
-    const deepLinkManifestUrl = absoluteManifestUrl.replace(/^http:\/\//i, 'https://://');
-    const deepLink = deepLinkManifestUrl.replace(/^https?:\/\//i, 'stremio://');
-    window.location.href = deepLink;
-  };
+  const isExpired = Object.values(timeLeft).every(v => v <= 0);
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      {/* +++ ADD VERCEL COMPONENTS HERE +++ */}
+    <div className="min-h-screen flex flex-col justify-center items-center py-10 px-4 sm:px-6 lg:px-8 bg-[#0f172a] text-white relative overflow-hidden">
       <Analytics />
       <SpeedInsights />
-      {/* +++++++++++++++++++++++++++++++++ */}
+
+      <div className="gradient-bg-1"></div>
+      <div className="gradient-bg-2"></div>
+      <div className="shape-1"></div>
+      <div className="shape-2"></div>
+
       <motion.div
+        className="max-w-4xl mx-auto text-center relative z-10 p-8 rounded-3xl backdrop-blur-lg bg-white/5 shadow-2xl border border-white/10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="max-w-7xl mx-auto"
       >
-        {/* ... (rest of your component remains the same) ... */}
-
-        <div className="mb-16 space-y-12">
+        <header className="mb-8 space-y-4">
           <motion.h1
-            className="text-xl sm:text-6xl font-bold mb-6 gradient-text"
-            initial={{ scale: 0.5 }}
+            className="text-4xl sm:text-6xl font-extrabold text-white leading-tight drop-shadow-lg"
+            initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
           >
-            Ratings Aggregator
-            <div className="text-2xl sm:text-4xl font-normal text-gray-400">
-              : )
-            </div>
+            🚨 Upgrade Required: Legacy Version Detected
           </motion.h1>
-          <motion.p
-            className="text-xl text-gray-300 max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            Your all-in-one movie and TV show ratings aggregator for Stremio
-          </motion.p>
-        </div>
+
+          <p className="text-xl sm:text-3xl text-gray-200 font-medium">
+            Your current version is running on the old Vercel deployment — it's being retired.
+          </p>
+
+          {isExpired ? (
+            <motion.p
+              className="text-2xl sm:text-4xl text-red-400 font-bold mt-4 text-pulse"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
+            >
+              🚨 VERSION DEACTIVATED! PLEASE UPGRADE. 🚨
+            </motion.p>
+          ) : (
+            <>
+              <motion.p
+                className="text-2xl sm:text-4xl text-yellow-300 font-bold mt-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                🚀 Upgrade Now for Better Speed, Stability, and Future Features!
+              </motion.p>
+              <motion.p
+                className="text-lg sm:text-xl text-blue-300 font-semibold mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                ⚠️ The Vercel-hosted version will stop receiving updates.<br className="sm:hidden" />
+                Migrate to our optimized <span className="font-bold text-green-400">Elfhosted</span> instance for<br className="hidden sm:inline" />
+                🛡️ Better reliability, 💨 faster loading, and 🔧 ongoing support.
+              </motion.p>
+            </>
+          )}
+        </header>
 
         <motion.div
-          className="flex flex-col sm:flex-row justify-center gap-4 mb-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="button-gradient px-8 py-3 rounded-lg flex items-center justify-center gap-2 font-semibold"
-            onClick={handleCopy}
-          >
-            <FaCopy /> Copy URL
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="button-gradient px-8 py-3 rounded-lg flex items-center justify-center gap-2 font-semibold"
-            onClick={handleStremioWeb}
-          >
-            <FaExternalLinkAlt /> Stremio Web
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="button-gradient px-8 py-3 rounded-lg flex items-center justify-center gap-2 font-semibold"
-            onClick={handleStremioApp}
-          >
-            <SiStremio /> Open Stremio
-          </motion.button>
-
-          {/* <KoFiDialog ... /> */}
-        </motion.div>
-
-        <motion.div
-          className="mb-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="bg-purple-900/30 p-6 rounded-2xl mb-8 border border-purple-700/50 shadow-inner-xl flex flex-col items-center justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <div className="flex items-center justify-center w-full">
-            <img
-              src={showCase}
-              alt="Showcase"
-              className="w-full max-w-sm h-auto rounded-lg shadow-lg"
-            />
+          <h2 className="text-lg sm:text-xl text-gray-300 mb-4 font-semibold uppercase tracking-wide">
+            Countdown Until Deactivation
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-2 gap-y-4 sm:gap-x-4 text-white text-center">
+            {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
+              <div key={unit} className="flex flex-col items-center">
+                <div className="flex">
+                  <Digit value={String(timeLeft[unit]).padStart(2, '0')[0]} />
+                  <Digit value={String(timeLeft[unit]).padStart(2, '0')[1]} />
+                </div>
+                <span className="text-sm sm:text-base font-normal mt-2 opacity-80 uppercase">
+                  {unit.charAt(0).toUpperCase() + unit.slice(1)}
+                </span>
+              </div>
+            ))}
           </div>
         </motion.div>
 
-        <motion.div
-          className="text-center mb-8"
+        <motion.button
+          onClick={handleSwitchNow}
+          className="relative px-12 py-6 rounded-full bg-gradient-to-r from-green-500 to-teal-500 text-white text-3xl sm:text-5xl font-bold uppercase shadow-2xl overflow-hidden flex items-center justify-center gap-4 cursor-pointer block mx-auto hover:from-green-600 hover:to-teal-600 transform hover:scale-105 transition-transform duration-300 ease-in-out group"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 1, type: "spring", stiffness: 120, damping: 10 }}
+          whileHover={{ scale: 1.1, boxShadow: "0 0 50px rgba(0, 255, 128, 0.8), 0 0 100px rgba(0, 200, 100, 0.6)", transition: { type: "spring", stiffness: 300, damping: 10 } }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <SiStremio className="text-4xl sm:text-6xl group-hover:rotate-12 transition-transform duration-300" />
+          <span className="relative z-10">MIGRATE TO ELFHOSTED</span>
+          <motion.div
+            className="absolute inset-0 rounded-full border-4 border-white opacity-0"
+            animate={{ opacity: [0, 0.8, 0], scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.button>
+
+        <motion.footer
+          className="text-center mt-20 text-gray-500 text-base"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 1.2 }}
         >
-          {/* <h2 className="text-3xl font-bold mb-4">Why Ratings Aggregator ?</h2> */}
-          {/* <p>...</p> */}
-        </motion.div>
-
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <RatingCard
-            title="Multi-Source Ratings"
-            description="Aggregate scores from IMDb, TMDb, Metacritic & more"
-            icon="📊"
-          />
-          <RatingCard
-            title="Parental Guidance"
-            description="Age ratings & content warnings from Common Sense Media"
-            icon="👪"
-          />
-          <RatingCard
-            title="Content Insights"
-            description="Detailed content analysis from CringeMDB"
-            icon="🔍"
-          />
-        </div>
-
-        {/* i need space in between  */}
-        <div className="mt-8"></div>
-
-        <AddonManagerCard />
-
-        <div className='mt-8'></div>
-        
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-        >
-          <p className="text-gray-400">
-            Version {addonConfig.version} • Made with ❤️ for Stremio
-          </p>
-        </motion.div>
+          Made with ❤️ for Stremio users.
+        </motion.footer>
       </motion.div>
     </div>
   );
