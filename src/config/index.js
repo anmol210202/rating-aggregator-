@@ -30,9 +30,10 @@ const config = {
     userAgent: process.env.USER_AGENT || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36', // Update UA periodically
     addon: {
         id: 'community.ratings.aggregator',
-        version: '1.5.1', // Incremented version
-        name: '🎯 Ratings Aggregator',
-        description: 'Aggregated ratings from IMDb, TMDb, Metacritic, Common Sense, CringeMDB and more.',
+        version: '0.0.0',
+        name: '❌ Please Migrated to Elfhosted version',
+        description: 'Versel instance is expired. Please migrate to the Elfhosted version at https://rating-aggregator.elfhosted.com/configure/',
+        logo: 'https://emojicdn.elk.sh/❌',
         catalogs: [],
         resources: ['stream'],
         types: ['movie', 'series'],
