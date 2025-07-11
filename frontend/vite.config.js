@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
-    base: '/configure/',
+    base: '/',
     build: {
       outDir: path.resolve(__dirname, 'dist'),
       assetsDir: 'assets',
