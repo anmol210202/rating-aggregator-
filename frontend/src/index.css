@@ -15,7 +15,7 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #0F172A;
+  background-color: #0F172A; /* Original fallback */
   color: #F8FAFC;
   min-height: 100vh;
 }
@@ -60,7 +60,7 @@ body {
   100% { transform: translate(0, -0px); }
 }
 
-.pulse {
+.pulse { /* Existing pulse keyframe, for scaling */
   animation: pulse 2s infinite;
 }
 
@@ -68,4 +68,151 @@ body {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
+}
+
+/* New: Text pulse for expiration message */
+.text-pulse {
+  animation: textPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes textPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.sponsor-content img {
+  @apply float-left w-20 h-20 sm:w-28 sm:h-28 mr-4 mb-2 rounded;
+}
+
+.sponsor-content p, .sponsor-content a {
+  @apply text-gray-200;
+}
+
+.sponsor-content a {
+  @apply text-blue-400 underline hover:text-blue-300 transition-colors duration-150;
+}
+
+.sponsor-content strong {
+  @apply text-white font-semibold;
+}
+
+/* --- New Aesthetic Background Elements (from previous iteration) --- */
+
+/* Base background gradient for the whole page */
+.bg-\[\#0f172a\] { /* Target the exact class used in App.jsx */
+  background-color: #0f172a; /* Fallback */
+  background: linear-gradient(135deg, #0f172a, #1a0f2a); /* Dark purple/blue gradient */
+}
+
+/* Gradient background blobs */
+.gradient-bg-1, .gradient-bg-2 {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.3;
+  filter: blur(80px);
+  z-index: 0; /* Ensures they are behind the main content */
+}
+
+.gradient-bg-1 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, #8b5cf6, #d946ef); /* Purple to Pink */
+  top: -100px;
+  left: -100px;
+  animation: moveBlob1 20s infinite alternate ease-in-out;
+}
+
+.gradient-bg-2 {
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(45deg, #ec4899, #f472b6); /* Pink to Lighter Pink */
+  bottom: -150px;
+  right: -150px;
+  animation: moveBlob2 25s infinite alternate ease-in-out;
+}
+
+@keyframes moveBlob1 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(100px, 150px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes moveBlob2 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-100px, -150px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* More subtle shapes/light effects */
+.shape-1, .shape-2 {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.05); /* Very subtle white light */
+  border-radius: 50%;
+  filter: blur(50px);
+  z-index: 0; /* Ensures they are behind the main content */
+}
+
+.shape-1 {
+  width: 200px;
+  height: 200px;
+  top: 20%;
+  left: 10%;
+  animation: pulseShape 15s infinite ease-in-out;
+}
+
+.shape-2 {
+  width: 250px;
+  height: 250px;
+  bottom: 25%;
+  right: 15%;
+  animation: pulseShape 18s infinite reverse ease-in-out;
+}
+
+@keyframes pulseShape {
+  0% { transform: scale(1); opacity: 0.05; }
+  50% { transform: scale(1.2); opacity: 0.08; }
+  100% { transform: scale(1); opacity: 0.05; }
+}
+
+/* Custom inner shadow for the main content box */
+.shadow-inner-xl {
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
+}
+
+/* --- New styles for the "hacker/digital" countdown --- */
+
+.font-mono { /* Ensure a monospaced font is used, Tailwind's default 'font-mono' utility */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.text-shadow-neon {
+  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #8b5cf6, 0 0 20px #8b5cf6, 0 0 25px #8b5cf6, 0 0 30px #8b5cf6, 0 0 35px #8b5cf6;
+}
+
+/* Optional: Subtle glitch/scanline effect on digit background for hacker vibe */
+.glitch-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(0,255,0,0.1), rgba(0,0,0,0.1), rgba(0,255,0,0.1));
+  mix-blend-mode: overlay;
+  opacity: 0;
+  animation: scanlineGlitch 8s infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes scanlineGlitch {
+  0%, 100% { opacity: 0; transform: translateY(0); }
+  10% { opacity: 0.1; transform: translateY(5px); }
+  12% { opacity: 0; transform: translateY(0); }
+  20% { opacity: 0.15; transform: translateY(-3px); }
+  22% { opacity: 0; transform: translateY(0); }
+  50% { opacity: 0; } /* Long pauses to make it subtle */
 }
