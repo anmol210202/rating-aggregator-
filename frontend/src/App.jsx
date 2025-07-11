@@ -25,7 +25,6 @@ const calculateTimeLeft = (expirationDate) => {
 
 function App() {
   const manifestUrl = `/manifest.json`;
-  const sponsorHTML = process.env.VITE_HOME_BLURB;
   const expirationDateTime = new Date('2025-07-23T00:00:00Z');
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(expirationDateTime));
   const timerRef = useRef(null);
