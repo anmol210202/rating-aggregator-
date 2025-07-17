@@ -1,6 +1,6 @@
 {
   "name": "ratings-aggregator",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "description": "Stremio add-on providing aggregated ratings from various sources.",
   "main": "src/server.js",
   "engines": {
