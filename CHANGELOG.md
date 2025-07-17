@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.9.0](https://github.com/anmol210202/rating-aggregator-/compare/v1.8.1...v1.9.0) (2025-07-17)
+
+
+### Features
+
+* dummy commit to test release ([8482e08](https://github.com/anmol210202/rating-aggregator-/commit/8482e08204e4274c388dd18fc3222a5cb7125c6a))
+
+
+### Bug Fixes
+
+* sync root & frontend versions via linked-versions plugin ([5497c26](https://github.com/anmol210202/rating-aggregator-/commit/5497c263f763de2398a64b8a612f346b38b3bc8a))
+
 ## [1.8.1](https://github.com/anmol210202/rating-aggregator-/compare/v1.8.0...v1.8.1) (2025-07-16)
 
 
