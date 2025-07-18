@@ -4,14 +4,13 @@ const express = require('express');
 const path = require('path');
 const logger = require('./utils/logger');
 const config = require('./config');
-const addonInterface = require('./addon');
-const { getRouter } = require('stremio-addon-sdk');
+const manifest = require('./config/manifest');
+const streamHandler = require('./handlers/streamHandler');
 const redisClient = require('./cache/redisClient');
 
 async function startServer() {
     logger.info('Starting addon server...');
 
-    // Initialize Redis connection
     try {
         if (!redisClient.isReady()) await redisClient.connect();
         logger.info('Redis connected successfully.');
@@ -19,22 +18,20 @@ async function startServer() {
         logger.warn('Redis unavailable:', err.message);
     }
 
-    // Create Express app
     const app = express();
-
-    // Serve any static files you place in ./public
     const distPath = path.join(__dirname, '../frontend/dist');
+
+    // Frontend
     app.use('/configure', express.static(distPath));
-    
-    // Serve the index.html file for the root path
-    app.get('/', (_req, res) => {
-        res.redirect('/configure');
+    app.get('/', (_req, res) => res.redirect('/configure'));
+    app.get('/configure', (_req, res) => res.sendFile(path.join(distPath, 'index.html')));
+
+    app.use((req, res, next) => {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        next();
     });
 
-    app.get('/configure', (_req, res) => {
-        res.sendFile(path.join(distPath, 'index.html'));
-    });
-
+    // Healthcheck
     app.get('/health', (_req, res) => {
         res.json({
             status: 'ok',
@@ -43,18 +40,50 @@ async function startServer() {
         });
     });
 
+    // Stremio Addon Routes (manual)
+    app.get('/:userConfig/manifest.json', (req, res) => {
+        const userConfig = req.params.userConfig;
 
+        res.setHeader('Content-Type', 'application/json');
+        res.json(manifest);
+    });
 
-    // Mount the Stremio addon (manifest.json, API, etc.)
-    app.use(getRouter(addonInterface));
-    logger.info('Addon router mounted.');
+    app.get('/:userConfig/stream/:type/:id.json', async (req, res) => {
+        try {
+            const {userConfig, type, id } = req.params;
+            logger.info(`Stream request: userConfig=${userConfig}, type=${type}, id=${id}`);
+            const out = await streamHandler({ userConfig, type, id });
+            res.json(out);
+        } catch (err) {
+            logger.error('Stream error:', err.message);
+            res.status(500).json({ streams: [] });
+        }
+    });
 
-    // Start HTTP server
+    // Default manifest (no userConfig)
+    app.get('/manifest.json', (_req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.json(manifest);
+    });
+
+    // Default stream route (no userConfig)
+    app.get('/stream/:type/:id.json', async (req, res) => {
+        try {
+            const { type, id } = req.params;
+            const out = await streamHandler({ type, id });
+            res.json(out);
+        } catch (err) {
+            logger.error('Stream error:', err.message);
+            res.status(500).json({ streams: [] });
+        }
+    });
+
+    // Start
     const port = config.port;
     app.listen(port, () => {
         const url = `http://localhost:${port}`;
-        logger.info(`Addon server listening on ${url}`);
-        logger.info(`Access the addon manifest at ${url}/manifest.json`);
+        logger.info(`Server listening at ${url}`);
+        logger.info(`Manifest: ${url}/manifest.json`);
     });
 }
 

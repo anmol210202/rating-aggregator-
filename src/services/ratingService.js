@@ -97,6 +97,8 @@ async function getRatings(type, imdbId) {
         )
     );
 
+    logger.debug(`Ratings fetched for ${baseId}:`, results);
+
     const finalRatings = dedupeRatings(results);
     logger.info(`Resolved ${finalRatings.length} unique ratings for ${baseId}`);
 

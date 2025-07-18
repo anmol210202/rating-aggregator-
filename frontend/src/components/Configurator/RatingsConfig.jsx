@@ -1,67 +1,75 @@
-import ReorderList from '../ReorderList';
-import ToggleSwitch from '../ToggleSwitch';
-import { RATING_SOURCES } from '../../utils/constants';
+import ReorderList from '../ReorderList'
+import ToggleSwitch from '../ToggleSwitch'
+import { RATING_SOURCES } from '../../utils/constants'
 
 const RatingsConfig = ({ config, onChange }) => {
-    const sources = RATING_SOURCES.filter(s => s.id !== 'mcUsers'); // not shown in config panel
+    // All sources, in the constant order
+    const all = RATING_SOURCES.map((s) => s.id)
 
-    const handleToggle = (id) => {
+    const handleToggle = (id) =>
         onChange({
             ...config,
-            [id]: { ...config[id], enabled: !config[id]?.enabled }
-        });
-    };
+            [id]: { ...config[id], enabled: !config[id].enabled },
+        })
 
     const handleReorder = (newOrder) => {
-        const updated = { ...config };
-        newOrder.forEach((item, idx) => {
-            updated[item.id].order = idx + 1;
-        });
-        onChange(updated);
-    };
+        const updated = { ...config }
+        newOrder.forEach((id, idx) => {
+            updated[id].order = idx + 1
+        })
+        onChange(updated)
+    }
 
-    const enabledSources = sources
-        .filter(s => config[s.id]?.enabled)
-        .sort((a, b) => config[a.id].order - config[b.id].order);
+    const enabled = all.filter((id) => config[id].enabled)
+    // Sort by config.order
+    enabled.sort((a, b) => config[a].order - config[b].order)
+    const disabled = all.filter((id) => !config[id].enabled)
 
-    const disabledSources = sources.filter(s => !config[s.id]?.enabled);
-
-    const renderRatingRow = (source) => (
-        <div className="flex items-center justify-between w-full px-4 py-2 bg-gray-800 rounded">
-            <div className="flex items-center gap-3">
-                <ToggleSwitch
-                    checked
-                    onChange={() => handleToggle(source.id)}
-                />
-                <span className="text-lg">{source.label.slice(0, 2)}</span>
-                <span>{source.id}</span>
+    const renderItem = (id) => {
+        const src = RATING_SOURCES.find((s) => s.id === id)
+        return (
+            <div className="flex items-center justify-between w-full px-4 py-2 bg-gray-800 rounded">
+                <div className="flex items-center gap-3">
+                    <ToggleSwitch
+                        checked={config[id].enabled}
+                        onChange={() => handleToggle(id)}
+                    />
+                    <span className="text-lg">{Array.isArray(src.label) ? src.label[0] : src.label}</span>
+                </div>
+                <span className="text-gray-400">↕️</span>
             </div>
-            <span className="text-gray-400">↕️</span>
-        </div>
-    );
+        )
+    }
 
     return (
         <div className="space-y-2">
             <ReorderList
-                items={enabledSources}
+                items={enabled}
                 onReorder={handleReorder}
-                renderItem={renderRatingRow}
-                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                keyExtractor={(id) => id}
             />
-            {disabledSources.map(source => (
-                <div key={source.id} className="flex items-center justify-between w-full px-4 py-2 bg-gray-700 rounded opacity-60">
-                    <div className="flex items-center gap-3">
-                        <ToggleSwitch
-                            checked={false}
-                            onChange={() => handleToggle(source.id)}
-                        />
-                        <span className="text-lg">{source.label.slice(0, 2)}</span>
-                        <span>{source.id}</span>
+            {disabled.map((id) => {
+                const src = RATING_SOURCES.find((s) => s.id === id)
+                return (
+                    <div
+                        key={id}
+                        className="flex items-center justify-between w-full px-4 py-2 bg-gray-700 rounded opacity-60"
+                    >
+                        <div className="flex items-center gap-3">
+                            <ToggleSwitch
+                                checked={false}
+                                onChange={() => handleToggle(id)}
+                            />
+                            <span className="text-lg">
+                                {Array.isArray(src.label) ? src.label[0] : src.label}
+                            </span>
+                        </div>
                     </div>
-                </div>
-            ))}
+                )
+            })}
         </div>
-    );
-};
+    )
+}
 
-export default RatingsConfig;
+export default RatingsConfig

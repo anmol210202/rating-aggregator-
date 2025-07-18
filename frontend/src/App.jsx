@@ -19,7 +19,9 @@ function App() {
       tmdb: { enabled: true, order: 3 },
       metacritic: { enabled: true, order: 4 },
       mcUsers: { enabled: true, order: 5 },
-      cringemdb: { enabled: true, order: 6 }
+      rt: { enabled: true, order: 6 },
+      rtUsers: { enabled: true, order: 7 },
+      cringemdb: { enabled: true, order: 8 }
     },
     parental: {
       ageRating: true,

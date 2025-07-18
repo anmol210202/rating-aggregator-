@@ -1,35 +1,39 @@
 export const generateManifestUrl = (config) => {
-    const baseUrl = window.location.origin;
-    const params = new URLSearchParams();
+    const origin = window.location.origin
 
-    // Default order + enabled for clean check
-    const defaultRatings = [
-        'commonSense',
+    // Default rating order
+    const defaultOrder = [
+        'age',
         'imdb',
         'tmdb',
         'metacritic',
-        'cringemdb'
-    ];
+        'mcUsers',
+        'rt',
+        'rtUsers',
+        'cringemdb',
+    ]
 
-    const enabledRatings = Object.entries(config.ratings)
-        .filter(([_, val]) => val.enabled)
-        .sort((a, b) => a[1].order - b[1].order)
-        .map(([key]) => key);
+    const enabled = Object.entries(config.ratings)
+        .filter(([, v]) => v.enabled)
+        .sort(([, a], [, b]) => a.order - b.order)
+        .map(([id]) => id)
 
-    const isDefault =
-        enabledRatings.length === defaultRatings.length &&
-        enabledRatings.every((id, i) => id === defaultRatings[i]);
+    // Build path-based manifest URL
+    let manifestPath = '/manifest.json'
 
-    if (!isDefault) {
-        params.append('ratings', enabledRatings.join(','));
+    if (
+        enabled.length !== defaultOrder.length ||
+        !enabled.every((id, i) => id === defaultOrder[i])
+    ) {
+        manifestPath = `/ratings=${encodeURIComponent(enabled.join(','))}/manifest.json`
     }
 
+    // Optional query string
+    const params = new URLSearchParams()
     if (config.mdbList.enabled && config.mdbList.apiKey) {
-        params.append('mdbListKey', config.mdbList.apiKey);
+        params.set('mdbListKey', config.mdbList.apiKey)
     }
 
-    const paramString = params.toString();
-    return paramString
-        ? `${baseUrl}/manifest.json?${paramString}`
-        : `${baseUrl}/manifest.json`;
-};
+    const qs = params.toString()
+    return `${origin}${manifestPath}${qs ? '?' + qs : ''}`
+}

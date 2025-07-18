@@ -1,6 +1,6 @@
 const MDBListConfig = () => {
   return (
-    <h1>MDBListConfig</h1>
+    <h1>Upcoming.....</h1>
   )
 }
 export default MDBListConfig

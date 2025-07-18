@@ -1,6 +1,6 @@
 const ParentalConfig = () => {
   return (
-    <h1>ParentalConfig</h1>
+    <h1>Upcoming .....</h1>
   )
 }
 export default ParentalConfig

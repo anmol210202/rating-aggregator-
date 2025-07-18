@@ -3,40 +3,69 @@ const logger = require('../utils/logger');
 const config = require('../config');
 const { getEmojiForSource } = require('../utils/emojiMapper');
 
+const sourceMap = {
+    age: 'Common Sense',
+    imdb: 'IMDb',
+    tmdb: 'TMDb',
+    metacritic: 'MC',
+    mcUsers: 'MC Users',
+    rt: 'RT',
+    rtUsers: 'RT Users',
+    cringemdb: 'CringeMDB',
+};
+
+
+function parseUserConfig(userConfigStr = '') {
+    const match = userConfigStr.match(/^ratings=(.+)$/);
+    if (!match) return null;
+
+    const idList = match[1].split(',');
+    return idList;
+}
+
+
 // Format stream description
-function formatRatingsCard(ratings) {
+function formatRatingsCard(userOrderIds, ratings) {
     const lines = ["───────────────"];
 
-    // Common Sense (child-safety first)
-    const commonSense = ratings.find(r => r.source === 'Common Sense');
-    if (commonSense) {
-        lines.push(`${getEmojiForSource(commonSense.source)} ${commonSense.value}`);
-    }
+    const defaultOrder = [
+        'Common Sense',
+        'IMDb',
+        'TMDb',
+        'MC',
+        'MC Users',
+        'RT',
+        'RT Users',
+        'CringeMDB'
+    ];
 
-    // Standard ratings
-    ratings
-        .filter(r => ['IMDb', 'TMDb', 'MC', 'MC Users', 'RT', 'RT Users'].includes(r.source))
-        .sort((a, b) => {
-            const order = ['IMDb', 'TMDb', 'MC', 'MC Users', 'RT', 'RT Users'];
-            return order.indexOf(a.source) - order.indexOf(b.source);
-        })
-        .forEach(rating => {
-            lines.push(`${getEmojiForSource(rating.source)} ${rating.source.padEnd(9)}: ${rating.value}`);
-        });
+    const order = userOrderIds
+        ? userOrderIds.map(id => sourceMap[id]).filter(Boolean)
+        : defaultOrder;
 
-    // CringeMDB + Certification
-    const cringe = ratings.find(r => r.source === 'CringeMDB' || r.source === 'Certification');
-    if (cringe) {
-        cringe.value.split('\n').forEach(line => {
-            if (line.trim()) lines.push(line.trim());
-        });
+    for (const source of order) {
+        const match = ratings.find(r => r.source === source);
+        if (!match) continue;
+
+        if (source === 'Common Sense') {
+            lines.push(`${getEmojiForSource(source)} ${match.value}`);
+        } else if (source === 'CringeMDB' || source === 'Certification') {
+            match.value.split('\n').forEach(line => {
+                if (line.trim()) lines.push(line.trim());
+            });
+        } else {
+            lines.push(`${getEmojiForSource(source)} ${source.padEnd(9)}: ${match.value}`);
+        }
     }
 
     lines.push("───────────────");
     return lines.join('\n');
 }
 
-async function streamHandler({ type, id }) {
+
+async function streamHandler({userConfig, type, id }) {
+
+    userOrderIds = parseUserConfig(userConfig);
     logger.info(`Received stream request for: type=${type}, id=${id}`);
 
     if (!id || !id.startsWith('tt')) {
@@ -54,7 +83,7 @@ async function streamHandler({ type, id }) {
 
         const stream = {
             name: "🎯 Ratings Aggregator",
-            description: formatRatingsCard(ratings),
+            description: formatRatingsCard(userOrderIds, ratings),
             externalUrl: `${config.sources.imdbBaseUrl}/title/${id.split(':')[0]}/`,
             behaviorHints: {
                 notWebReady: true,
