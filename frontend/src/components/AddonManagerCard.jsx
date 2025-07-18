@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { RiArrowRightUpLine } from 'react-icons/ri';
 
-export const AddonManagerCard = () => {
+const AddonManagerCard = () => {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -37,3 +37,5 @@ export const AddonManagerCard = () => {
         </motion.div>
     );
 };
+
+export default AddonManagerCard;
